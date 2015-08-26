@@ -14,6 +14,7 @@ premake.extensions.compilationunit = {
 	--
 	-- these are private, do not touch
 	--
+	compilationunitname = "__compilation_unit__",
 	numcompilationunits = 8,
 	compilationunits = {}
 
@@ -31,13 +32,6 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 		return base(prj)
 	end
 
-	-- check that the folder in which to generate the compilation units is defined
-	if prj.compilationunitdir == nil then
-		premake.warn("compilationunitdir is not set for this project, compilation units will be disabled.")
-		prj.compilationunitenabled = false
-		return base(prj)
-	end
-
 	local project = premake.project
 	local cu = premake.extensions.compilationunit
 
@@ -45,6 +39,13 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 
 		-- initialize the compilation unit structure for this config
 		cu.compilationunits[cfg] = {}
+
+		-- remove the previous compilation units
+		for i = #cfg.files, 1, -1 do
+			if cu.isCompilationUnit(cfg, cfg.files[i]) then
+				table.remove(cfg.files, i)
+			end
+		end
 
 		-- store the list of files for a later building of the actual compilation unit files
 		table.foreachi(cfg.files, function(filename)
@@ -88,7 +89,7 @@ function premake.extensions.compilationunit.customAddFileConfig(base, fcfg, cfg)
 	local filename = fcfg.abspath
 
 	-- if a file will be included in the compilation units, disable it
-	if cu.isIncludedInCompilationUnit(cfg, filename) == true then
+	if cu.isIncludedInCompilationUnit(cfg, filename) == true and cu.isCompilationUnit(cfg, filename) == false then
 		config.flags.ExcludeFromBuild = true
 	end
 
@@ -168,11 +169,6 @@ function premake.extensions.compilationunit.isIncludedInCompilationUnit(cfg, fil
 		return false
 	end
 
-	-- ignore the compilation units files
-	if cu.isCompilationUnit(cfg, filename) == true then
-		return false
-	end
-
 	-- it's ok !
 	return true
 end
@@ -186,10 +182,22 @@ end
 --
 function premake.extensions.compilationunit.getCompilationUnitDir(cfg)
 
-	-- get the objdir
-	local dir = cfg.compilationunitdir
+	-- in this order:
+	--	- check if compilationunitdir is used
+	--	- if not, if we have an objdir set, use it
+	--	- if not, re-create the obj dir like the default Premake one.
 
-	-- add the platform and build cfg to make it unique
+	local dir = ""
+	if cfg.compilationunitdir then
+		dir = cfg.compilationunitdir
+	else
+		if cfg.objdir then
+			return cfg.objdir
+		else
+			dir = path.join(cfg.project.location, "obj")
+		end
+	end
+
 	if cfg.platform then
 		dir = path.join(dir, cfg.platform)
 	end
@@ -210,7 +218,7 @@ end
 --		The name of the file.
 --
 function premake.extensions.compilationunit.getCompilationUnitName(cfg, index, shortName)
-	return "__compilation_unit_" .. index .. iif(cfg.language == "C", ".c", ".cpp")
+	return premake.extensions.compilationunit.compilationunitname .. index .. iif(cfg.language == "C", ".c", ".cpp")
 end
 
 
@@ -225,7 +233,7 @@ end
 -- 		true if the file is a compilation unit, false otherwise
 --
 function premake.extensions.compilationunit.isCompilationUnit(cfg, absfilename)
-	return path.getname(absfilename):startswith("__compilation_unit_")
+	return path.getname(absfilename):startswith(premake.extensions.compilationunit.compilationunitname)
 end
 
 

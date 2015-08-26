@@ -18,39 +18,42 @@ introduced by the SCU technique.
 How to use
 ==========
 
-First, put the `compilationunit.lua` file somewhere accessible. Then, in your project's premake
-script, insert this at the beginning :
+Clone this repository some place where Premake will be able to locate. Then
+in your project's Premake script, include the main file like this :
 
-	:::lua
-	include "compilationunit.lua"
+```lua
+require( "premake-compilationunit/compilationunit.lua" )
+```
 
 Then in the projects where you want to enable support for compilation units :
 
-	:::lua
-	compilationunitdir "somedirectory"
+```lua
+compilationunitenabled ( true )
+```
 
-Note : `somedirectory` is the directory where you want the addon to place the generated compilation
-units. This should be outside the usual source tree, because if you generate your project again,
-the script will include your previously generated compilation unit files as "normal" ones.
-There is a basic support for this in the addon code, but in some cases the addon might fail
-detecting those special files, and it will do some weird stuff :)
+The final step is to invoke Premake using the `compilationunit` option:
 
-So here is an example of what you should and shouldn't do :
+```
+premake5 --compilationunit=8 <action>
+```
 
-	:::lua
-	-- this is ok
-	files { "src/**" }
-	compilationunitdir "compilation_units/"
-	
-	-- this is *not* ok !
-	-- if you do that once, the addon will generate the files in this folder.
-	-- then the next time you run this script, those generated files will be
-	-- included by the 'files' command.
-	files { "src/**" }
-	compilationunitdir "src/compilation_units/"
+Here I tell the module to use 8 compilation unit files, for projects where it has
+been enabled.
 
-And finally, just add the option `--compilationunit=x` to your premake command line. This will
-generate the project using the technique, using `x` number of compilation unit files. I recommand
-using the number of cores of your processor as the number of compilation files.
+API
+===
 
-If you don't specify the option, the project is generated as usual.
+Most of the API commands of this addon are scoped to the current configuration,
+so unless specified otherwise, assume that the documented command only applies
+to the current configuration block.
+
+#####compilationunitenabled enabled
+
+Enable or disable the compilation unit generation for the current filter. `enabled`
+is a boolean.
+
+#####compilationunitdir "path"
+
+The path where the compilation unit files will be generated. If not specified, the
+obj dir will be used. This is a per-project configuration. The addon takes care
+of handling the various configurations for you.
