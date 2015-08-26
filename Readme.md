@@ -6,9 +6,10 @@ compilation unit files (basically the .cpp and .c files) into a few big ones. Ba
 of compiling `foo.cpp` and `bar.cpp` you compile a single `foobaz.cpp` one which contains the
 following :
 
-	:::cpp
-	#include "foo.cpp"
-	#include "bar.cpp"
+```cpp
+#include "foo.cpp"
+#include "bar.cpp"
+```
 
 This technique is based on the one known as [Single Compilation Unit](https://en.wikipedia.org/wiki/Single_Compilation_Unit),
 but it allows creating `N` big compilation units, where `N` usually is the number of cores of your CPU.
