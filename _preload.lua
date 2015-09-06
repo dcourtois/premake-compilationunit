@@ -1,5 +1,11 @@
 
 --
+-- avoid loading twice this file (see compilationunit.lua)
+--
+premake.extensions.compilationunit = true
+
+
+--
 -- register our custom option
 --
 newoption {
@@ -34,4 +40,4 @@ premake.api.register {
 --
 -- Always load
 --
-return true
+return function () return true end
