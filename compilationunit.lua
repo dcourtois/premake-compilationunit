@@ -30,7 +30,7 @@ premake.extensions.compilationunit = {
 function premake.extensions.compilationunit.customBakeFiles(base, prj)
 
 	-- if compilation units are disabled for this project, do nothing
-	if prj.compilationunitenabled ~= true then
+	if prj.compilationunitenabled ~= true or prj.external == true then
 		return base(prj)
 	end
 
