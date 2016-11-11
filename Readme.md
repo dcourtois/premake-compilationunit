@@ -23,7 +23,7 @@ Clone this repository some place where Premake will be able to locate. Then
 in your project's Premake script, include the main file like this :
 
 ```lua
-require( "premake-compilationunit/compilationunit.lua" )
+require( "premake-compilationunit/compilationunit" )
 ```
 
 Then in the projects where you want to enable support for compilation units :

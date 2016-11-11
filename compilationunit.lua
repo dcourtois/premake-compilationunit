@@ -204,8 +204,8 @@ function premake.extensions.compilationunit.getCompilationUnitDir(cfg)
 		dir = path.join(dir, cfg.platform)
 	end
 	dir = path.join(dir, cfg.buildcfg)
+	dir = path.join(dir, cfg.project.name)
 	return path.getabsolute(dir)
-
 end
 
 
