@@ -121,17 +121,17 @@ function premake.extensions.compilationunit.customBakeConfigs(base, sln)
 		-- create the units
 		local units = {}
 		for i = 1, cu.numcompilationunits do
-			local filename = path.join(cu.getCompilationUnitDir(config), cu.getCompilationUnitName(config, i))
-			local file = io.open(filename, "w")
-			table.insert(units, {
-				filename = filename,
-				file = file
-			})
-
 			-- add pch if needed
+			local content = ""
 			if config.pchheader ~= nil then
-				file:write("#include \"" .. config.pchheader .. "\"\n\n")
+				content = content .. "#include \"" .. config.pchheader .. "\"\n\n"
 			end
+
+			-- add the unit
+			table.insert(units, {
+				filename = path.join(cu.getCompilationUnitDir(config), cu.getCompilationUnitName(config, i)),
+				content = content
+			})
 		end
 
 		-- add files in the cpp unit
@@ -140,14 +140,27 @@ function premake.extensions.compilationunit.customBakeConfigs(base, sln)
 			-- compute the relative path of the original file, to add the #include statement
 			-- in the compilation unit
 			local relativefilename = path.getrelative(path.getdirectory(units[index].filename), path.getdirectory(filename))
-			relativefilename = relativefilename .. "/" .. path.getname(filename)
-			units[index].file:write("#include \"" .. relativefilename .. "\"\n")
+			relativefilename = path.join(relativefilename, path.getname(filename))
+			units[index].content = units[index].content .. "#include \"" .. relativefilename .. "\"\n"
 			index = (index % cu.numcompilationunits) + 1
 		end
 
-		-- close units
+		-- write units
 		for _, unit in ipairs(units) do
-			unit.file:close()
+			-- get the content of the file, if it already exists
+			local file = io.open(unit.filename, "r")
+			local content = ""
+			if file ~= nil then
+				content = file:read("*all")
+				file:close()
+			end
+
+			-- overwrite only if the content changed
+			if content ~= unit.content then
+				file = io.open(unit.filename, "w")
+				file:write(unit.content)
+				file:close()
+			end
 		end
 
 	end
