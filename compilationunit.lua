@@ -56,9 +56,14 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 			end
 		end)
 
+		-- store the compilation unit folder in the config
+		if cfg._compilationUnitDir == nil then
+			cfg._compilationUnitDir = cu.getCompilationUnitDir(cfg)
+		end
+
 		-- add the compilation units for premake
 		for i = 1, cu.numcompilationunits do
-			table.insert(cfg.files, path.join(cu.getCompilationUnitDir(cfg), cu.getCompilationUnitName(cfg, i)))
+			table.insert(cfg.files, path.join(cfg._compilationUnitDir, cu.getCompilationUnitName(cfg, i)))
 		end
 	end
 
@@ -129,7 +134,7 @@ function premake.extensions.compilationunit.customBakeConfigs(base, sln)
 
 			-- add the unit
 			table.insert(units, {
-				filename = path.join(cu.getCompilationUnitDir(config), cu.getCompilationUnitName(config, i)),
+				filename = path.join(config._compilationUnitDir, cu.getCompilationUnitName(config, i)),
 				content = content
 			})
 		end
