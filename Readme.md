@@ -23,7 +23,7 @@ Clone this repository some place where Premake will be able to locate. Then
 in your project's Premake script, include the main file like this :
 
 ```lua
-require( "premake-compilationunit/compilationunit" )
+require( "premake-compilationunit/compilationunit.lua" )
 ```
 
 Then in the projects where you want to enable support for compilation units :
@@ -48,12 +48,12 @@ Most of the API commands of this addon are scoped to the current configuration,
 so unless specified otherwise, assume that the documented command only applies
 to the current configuration block.
 
-#####compilationunitenabled enabled
+##### compilationunitenabled enabled
 
 Enable or disable the compilation unit generation for the current filter. `enabled`
 is a boolean.
 
-#####compilationunitdir "path"
+##### compilationunitdir "path"
 
 The path where the compilation unit files will be generated. If not specified, the
 obj dir will be used. This is a per-project configuration. The addon takes care
