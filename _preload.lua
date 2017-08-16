@@ -38,6 +38,16 @@ premake.api.register {
 
 
 --
+-- List of files that will be excluded when creating compilationunit
+--
+premake.api.register {
+	name = "compilationunitexclude",
+	scope = "config",
+	kind = "string-list"
+}
+
+
+--
 -- Always load
 --
 return function () return true end

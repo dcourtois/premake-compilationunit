@@ -198,6 +198,10 @@ function premake.extensions.compilationunit.isIncludedInCompilationUnit(cfg, fil
 		return false
 	end
 
+	if cu.isExcludedFromCU(cfg, filename) then
+		return false
+	end
+
 	-- it's ok !
 	return true
 end
@@ -235,6 +239,27 @@ function premake.extensions.compilationunit.getCompilationUnitDir(cfg)
 	return path.getabsolute(dir)
 end
 
+--
+-- Check whether the file should be excluded from the compilation unit
+--
+-- @param cfg
+--		The input configuration
+-- @param absfilename
+--		The filename of the file to check
+-- @return
+--		True if this should be excluded, False otherwise
+--
+function premake.extensions.compilationunit.isExcludedFromCU(cfg, fileName)
+	if cfg.compilationunitexclude then
+		for index, value in ipairs(cfg.compilationunitexclude) do
+			if path.getname(fileName) == value then
+				return true
+			end
+		end
+	end
+
+	return false
+end
 
 --
 -- Get the name of a compilation unit
