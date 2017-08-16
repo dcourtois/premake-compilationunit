@@ -18,8 +18,7 @@ premake.extensions.compilationunit = {
 	--
 	compilationunitname = "__compilation_unit__",
 	numcompilationunits = 8,
-	compilationunits = {},
-	test = {}
+	compilationunits = {}
 
 }
 
