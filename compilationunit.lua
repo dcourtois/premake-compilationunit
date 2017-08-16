@@ -18,7 +18,8 @@ premake.extensions.compilationunit = {
 	--
 	compilationunitname = "__compilation_unit__",
 	numcompilationunits = 8,
-	compilationunits = {}
+	compilationunits = {},
+	test = {}
 
 }
 
@@ -78,35 +79,34 @@ end
 --
 function premake.extensions.compilationunit.customAddFileConfig(base, fcfg, cfg)
 
-	-- call the base method to add the file config
-	base(fcfg, cfg)
-
 	-- get the addon
 	local cu = premake.extensions.compilationunit
+
+	-- call the base method to add the file config
+	base(fcfg, cfg)
 
 	-- do nothing else if the compilation units are not enabled for this project
 	if cfg.compilationunitenabled == nil or cu.compilationunits[cfg] == nil then
 		return
 	end
 
-	-- get the file configuration object
+	-- get file name and config
+	local filename = fcfg.abspath
 	local config = premake.fileconfig.getconfig(fcfg, cfg)
 
-	-- set the final filename
-	local filename = fcfg.abspath
+	-- if the compilation units were explicitely disabled for this file, remove it
+	-- from the compilation units and stop here
+	if config.compilationunitenabled == false then
+		local i = table.indexof(cu.compilationunits[cfg], filename)
+		if i ~= nil then
+			table.remove(cu.compilationunits[cfg], i)
+		end
+		return
+	end
 
 	-- if a file will be included in the compilation units, disable it
 	if cu.isIncludedInCompilationUnit(cfg, filename) == true and cu.isCompilationUnit(cfg, filename) == false then
 		config.flags.ExcludeFromBuild = true
-	end
-
-	-- if the file is disabled, remove it from the compilation units list
-	-- note: this is done here and not in the previous test to handle files
-	-- that were disabled by the user.
-	if config.flags.ExcludeFromBuild == true then
-		if cu.compilationunits[cfg][filename] ~= nil then
-			cu.compilationunits[cfg][filename] = nil
-		end
 	end
 
 end
@@ -175,6 +175,16 @@ function premake.extensions.compilationunit.customBakeConfigs(base, sln)
 
 end
 
+--
+-- Checks if a file should be included in the compulation units.
+--
+-- @param cfg
+--		The active configuration
+-- @param filename
+--		The filename
+-- @return
+--		true if the file should be included in compilation units, false otherwise
+--
 function premake.extensions.compilationunit.isIncludedInCompilationUnit(cfg, filename)
 
 	-- only handle source files
