@@ -49,12 +49,24 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 			end
 		end
 
+		-- the indices of the files that must be included in the compilation units
+		local sourceindexforcu = {}
+
 		-- store the list of files for a later building of the actual compilation unit files
-		table.foreachi(cfg.files, function(filename)
+		for i = #cfg.files, 1, -1 do
+			local filename = cfg.files[i]
 			if cu.isIncludedInCompilationUnit(cfg, filename) == true then
 				table.insert(cu.compilationunits[cfg], filename)
+				table.insert(sourceindexforcu, i)
 			end
-		end)
+		end
+
+		-- remove the original source files from the project
+		if cfg.compilationunitsonly then
+			table.foreachi(sourceindexforcu, function(i)
+				table.remove(cfg.files, i)
+			end)
+		end
 
 		-- store the compilation unit folder in the config
 		if cfg._compilationUnitDir == nil then
