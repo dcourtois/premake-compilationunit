@@ -50,11 +50,13 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 		end
 
 		-- store the list of files for a later building of the actual compilation unit files
-		table.foreachi(cfg.files, function(filename)
+		for i = #cfg.files, 1, -1 do
+			local filename = cfg.files[i]
 			if cu.isIncludedInCompilationUnit(cfg, filename) == true then
 				table.insert(cu.compilationunits[cfg], filename)
+				table.remove(cfg.files, i)
 			end
-		end)
+		end
 
 		-- store the compilation unit folder in the config
 		if cfg._compilationUnitDir == nil then
@@ -62,7 +64,7 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 		end
 
 		-- add the compilation units for premake
-                local count = math.min(#cu.compilationunits[cfg], cu.numcompilationunits)
+		local count = math.min(#cu.compilationunits[cfg], cu.numcompilationunits)
 		for i = 1, count do
 			table.insert(cfg.files, path.join(cfg._compilationUnitDir, cu.getCompilationUnitName(cfg, i)))
 		end
