@@ -247,7 +247,19 @@ end
 --		The name of the file.
 --
 function premake.extensions.compilationunit.getCompilationUnitName(cfg, index, shortName)
-	return premake.extensions.compilationunit.compilationunitname .. index .. iif(cfg.language == "C", ".c", ".cpp")
+
+	local language = cfg.language
+	local extension = nil
+	
+	if ( cfg.compilationunitextensions ~= nil ) then
+		  extension = cfg.compilationunitextensions[ language ]
+	end
+	
+	if extension == nil then
+		 extension = iif(language == "C", ".c", ".cpp")
+	end
+	
+	return premake.extensions.compilationunit.compilationunitname .. index .. extension
 end
 
 
