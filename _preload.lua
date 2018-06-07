@@ -36,6 +36,14 @@ premake.api.register {
        tokens = true
 }
 
+--
+-- Default unit extension
+--
+premake.api.register {
+	name = "compilationunitextensions",
+	scope = "config",
+	kind = "table"
+}
 
 --
 -- Always load
