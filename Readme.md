@@ -3,7 +3,7 @@ Compilation Unit Addon
 
 Compilation Units is a technique used to speed up compilation of huge projects, by regrouping
 compilation unit files (basically the .cpp and .c files) into a few big ones. Basically, instead
-of compiling `foo.cpp` and `bar.cpp` you compile a single `foobaz.cpp` one which contains the
+of compiling `foo.cpp` and `bar.cpp` you compile a single `foobar.cpp` one which contains the
 following :
 
 ```cpp
