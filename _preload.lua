@@ -59,6 +59,18 @@ premake.api.register {
 }
 
 --
+-- Tell if the original source files must be removed from the project (true), thus
+-- keeping only the the generated compilation units, or if all files are kept (false).
+--
+-- Default is to keep the original source files.
+--
+premake.api.register {
+	name = "compilationunitsonly",
+	scope = "config",
+	kind = "boolean"
+}
+
+--
 -- Always load
 --
 return function () return true end
