@@ -48,13 +48,34 @@ Most of the API commands of this addon are scoped to the current configuration,
 so unless specified otherwise, assume that the documented command only applies
 to the current configuration block.
 
-##### compilationunitenabled enabled
+##### compilationunitenabled boolean
 
-Enable or disable the compilation unit generation for the current filter. `enabled`
-is a boolean.
+Enable or disable the compilation unit generation for the current filter. By default
+it's disabled.
+
+##### compilationunitsonly boolean
+
+If this option is set to `true` then the generated projects will not include the
+original files. By defaut this option is `false` to allow easily editing / browsing
+the original code in IDEs, but it can be set to `true` in case you don't need that
+(think automated build systems, etc.)
 
 ##### compilationunitdir "path"
 
 The path where the compilation unit files will be generated. If not specified, the
 obj dir will be used. This is a per-project configuration. The addon takes care
 of handling the various configurations for you.
+
+##### compilationunitextensions table
+
+By default the extension of the generated compilation units is `.c` for C files,
+and `.cpp` for C++ files. You can use a table to override these extensions. For
+instance, if you want to enable compilation units on an Objective-C project:
+
+```lua
+filter {}
+    compilationunitextensions {
+        "C" = ".m",
+        "C++" = ".mm"
+    }
+```
