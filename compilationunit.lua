@@ -73,8 +73,11 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 			cfg._compilationUnitDir = cu.getCompilationUnitDir(cfg)
 		end
 
-		-- add the compilation units for premake
-		for i = 1, cu.numcompilationunits do
+		-- add the compilation units for premake.
+		-- note: avoid generating empty compilation units if we have less files in the project
+		-- than the number of compilation units.
+		local count = math.min(#cu.compilationunits[cfg], cu.numcompilationunits)
+		for i = 1, count do
 			table.insert(cfg.files, path.join(cfg._compilationUnitDir, cu.getCompilationUnitName(cfg, i)))
 		end
 	end
