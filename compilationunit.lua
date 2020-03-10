@@ -25,7 +25,7 @@ premake.extensions.compilationunit = {
 
 --
 -- This method overrides premake.oven.bakeFiles method. We use it to add the compilation units
--- to the project.
+-- to the project, and then generate and fill them.
 --
 function premake.extensions.compilationunit.customBakeFiles(base, prj)
 
@@ -37,6 +37,10 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 	local project = premake.project
 	local cu = premake.extensions.compilationunit
 
+	-- first step, gather compilation units.
+	-- this needs to take care of the case where the compilation units are generated in a folder from
+	-- the project (we need to skip them in this case to avoid recursively adding them each time we
+	-- run Premake.
 	for cfg in project.eachconfig(prj) do
 
 		-- initialize the compilation unit structure for this config
@@ -82,59 +86,7 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 		end
 	end
 
-	return base(prj)
-end
-
-
---
--- This method overrides premake.fileconfig.addconfig and adds a file configuration object
--- for each file, on each configuration. We use it to disable compilation of non-compilation
--- units files.
---
-function premake.extensions.compilationunit.customAddFileConfig(base, fcfg, cfg)
-
-	-- get the addon
-	local cu = premake.extensions.compilationunit
-
-	-- call the base method to add the file config
-	base(fcfg, cfg)
-
-	-- do nothing else if the compilation units are not enabled for this project
-	if cfg.compilationunitenabled == nil or cu.compilationunits[cfg] == nil then
-		return
-	end
-
-	-- get file name and config
-	local filename = fcfg.abspath
-	local config = premake.fileconfig.getconfig(fcfg, cfg)
-
-	-- if the compilation units were explicitely disabled for this file, remove it
-	-- from the compilation units and stop here
-	if config.compilationunitenabled == false then
-		local i = table.indexof(cu.compilationunits[cfg], filename)
-		if i ~= nil then
-			table.remove(cu.compilationunits[cfg], i)
-		end
-		return
-	end
-
-	-- if a file will be included in the compilation units, disable it
-	if cu.isIncludedInCompilationUnit(cfg, filename) == true and cu.isCompilationUnit(cfg, filename) == false then
-		config.flags.ExcludeFromBuild = true
-	end
-
-end
-
---
--- Overrides the premake.oven.bakeConfigs method which happens at the last step of the baking
--- process. I use this to actually generate the compilation units.
---
-function premake.extensions.compilationunit.customBakeConfigs(base, sln)
-
-	-- get the addon
-	local cu = premake.extensions.compilationunit
-
-	-- loop through the configs
+	-- second step loop through the configs and generate the compilation units
 	for config, files in pairs(cu.compilationunits) do
 
 		-- create the units
@@ -184,10 +136,49 @@ function premake.extensions.compilationunit.customBakeConfigs(base, sln)
 
 	end
 
-	-- execute the overriden method
-	return base(sln)
+	return base(prj)
+end
+
+
+--
+-- This method overrides premake.fileconfig.addconfig and adds a file configuration object
+-- for each file, on each configuration. We use it to disable compilation of non-compilation
+-- units files.
+--
+function premake.extensions.compilationunit.customAddFileConfig(base, fcfg, cfg)
+
+	-- get the addon
+	local cu = premake.extensions.compilationunit
+
+	-- call the base method to add the file config
+	base(fcfg, cfg)
+
+	-- do nothing else if the compilation units are not enabled for this project
+	if cfg.compilationunitenabled == nil or cu.compilationunits[cfg] == nil then
+		return
+	end
+
+	-- get file name and config
+	local filename = fcfg.abspath
+	local config = premake.fileconfig.getconfig(fcfg, cfg)
+
+	-- if the compilation units were explicitely disabled for this file, remove it
+	-- from the compilation units and stop here
+	if config.compilationunitenabled == false then
+		local i = table.indexof(cu.compilationunits[cfg], filename)
+		if i ~= nil then
+			table.remove(cu.compilationunits[cfg], i)
+		end
+		return
+	end
+
+	-- if a file will be included in the compilation units, disable it
+	if cu.isIncludedInCompilationUnit(cfg, filename) == true and cu.isCompilationUnit(cfg, filename) == false then
+		config.flags.ExcludeFromBuild = true
+	end
 
 end
+
 
 --
 -- Checks if a file should be included in the compulation units.
@@ -324,6 +315,5 @@ if _OPTIONS["compilationunit"] ~= nil then
 	-- setup the overrides
 	premake.override(premake.oven, "bakeFiles", cu.customBakeFiles)
 	premake.override(premake.fileconfig, "addconfig", cu.customAddFileConfig)
-	premake.override(premake.oven, "bakeConfigs", cu.customBakeConfigs)
 
 end
