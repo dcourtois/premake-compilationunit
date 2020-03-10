@@ -139,7 +139,7 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 
 			-- overwrite only if the content changed
 			if content ~= unit.content then
-				file = io.open(unit.filename, "w")
+				file = assert(io.open(unit.filename, "w"))
 				file:write(unit.content)
 				file:close()
 			end
