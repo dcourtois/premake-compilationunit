@@ -103,8 +103,14 @@ function premake.extensions.compilationunit.customBakeFiles(base, prj)
 		-- create the units
 		local units = {}
 		for i = 1, cu.numcompilationunits do
-			-- add pch if needed
 			local content = ""
+
+			-- add header if needed
+			if config.compilationunitheader ~= nil then
+				content = content .. config.compilationunitheader .. "\n\n"
+			end
+
+			-- add pch if needed
 			if config.pchheader ~= nil then
 				content = content .. "#include \"" .. config.pchheader .. "\"\n\n"
 			end

@@ -71,6 +71,16 @@ premake.api.register {
 }
 
 --
+-- This command can be used to insert a header text to the beginning of each generated
+-- compilation unit.
+--
+premake.api.register {
+	name = "compilationunitheader",
+	scope = "config",
+	kind = "string"
+}
+
+--
 -- Always load
 --
 return function () return true end

@@ -60,7 +60,7 @@ original files. By defaut this option is `false` to allow easily editing / brows
 the original code in IDEs, but it can be set to `true` in case you don't need that
 (think automated build systems, etc.)
 
-##### compilationunitdir "path"
+##### compilationunitdir path
 
 The path where the compilation unit files will be generated. If not specified, the
 obj dir will be used. This is a per-project configuration. The addon takes care
@@ -79,3 +79,9 @@ filter {}
         "C++" = ".mm"
     }
 ```
+
+
+##### compilationunitheader string
+
+This allows to insert a block of text as the "header" part of every generated
+compilation units.
